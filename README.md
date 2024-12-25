@@ -1,5 +1,5 @@
 # Football_Data_Analytics_Azure_Data_Eng_Project
- This project involves a complete pipeline for extracting football data from Wikipedia, storing it in Azure Data Lake, querying the data through Azure Synapse, and visualizing the results in PowerBI. It's designed to provide comprehensive analytics on football data for enthusiasts and analysts.
+ This project involves a complete pipeline for extracting football data from Wikipedia, storing it in Azure Data Lake, transforming the data using Azure Databricks, querying the data through Azure Synapse, and visualizing the results in PowerBI. It's designed to provide comprehensive analytics on football data for enthusiasts and analysts.
 
 1. <b>Architecture Diagram</b>:
     - <p><img src="images/architecture_diagram.jpg" alt="architecture_diagram" width="800px"></p>
@@ -31,7 +31,7 @@ Please note that I have skipped that part because my file was pretty cleaned. I 
 <p><img src="images/6.publish_all.jpg" alt="4.copied_data_fromraw_to_transformed" width="800px"></p>
 
 Anyway you can find below steps - How to transform raw_data through Azure Dataricks: 
-Azure Databricks, using PySpark, can be used for these transformations. Data initially stored in csv format in the "raw_data" folder is converted to the csv format as it progresses to "transformed_data". This transformation can be carried out through Databricks notebooks:
+Azure Databricks, using PySpark, can be used for these transformations. Data initially stored in csv format in the "raw_data" folder can be converted to the csv format as it progresses to "transformed_data". This transformation can be carried out through Databricks notebooks:
 
 1. Mount the storage.
 2. Execute transformation by using the Azure Databricks compute engine.
