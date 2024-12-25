@@ -11,49 +11,49 @@
 - Azure Databricks workspace (Optional)
 - Azure Synapse Analytics workspace
 - Powerbi Desktop or Tableau Desktop
-<p><img src="images/SQL_DB.jpg" alt="SQL_DB" width="800px"></p>
 
 ## <ins>1. Extracting Data with Apache Airflow</ins>
 
 1. Files: wikipedia_pipeline.py within the pipelines directory and wikipedia_flow.py within the dags directory.
-2. Establishing a connection between Azure Data Factory and the local SQL Server.
-3. Setting up a copy pipeline to transfer all tables from the local SQL server to the Azure Data Lake's "bronze" folder.
-<p><img src="images/for_each_activity_successed.jpg" alt="for_each_activity_successed" width="800px"></p>
-<p><img src="images/data_ingestion_done.jpg" alt="data_ingestion_done" width="800px"></p>
+2. Description: This is the primary DAG file containing the Apache Airflow code.
+3. Execution:
+   - Run Airflow on localhost.
+   - Initiate the DAG to begin data extraction from Wikipedia.
+   - Data is subsequently stored in Azure Data Lake Storage Gen2.
+<p><img src="images/14.airflow_azure_success.jpg" alt="airflow_successed" width="800px"></p>
 
-- Azure Data Lake Gen 2: Used for storage of data. Three containers have been created Bronze, Silver and Gold. The three layers represent the stages of business logic and requirements. The initial data ingested from SQL Server is transformed to parquet format as it provides significant performance, storage, and query optimization benefits in big data processing and analytics scenarios and stored in the bronze container. The next level transformation is performed on the bronze data and stored in the silver container. The final transformation is performed on the silver layer and the data is stored in the gold container. The delta lake abstraction layer has been used on the parquet format files for storing the data in the gold and silver containers to allow for versioning. The data in the gold layer is ideal for reporting and analysis. It can be consumed by Azure Synapse Analytics which in turn can be connected to PowerBI for creating visualizations.
-<p><img src="images/resource_group.jpg" alt="resource_group" width="800px"></p>
-<p><img src="images/grant_access.jpg" alt="grant_access" width="800px"></p>  
-<p><img src="images/containers.jpg" alt="containers" width="800px"></p> 
+- Azure Data Lake Gen 2: Used for storage of data. One container has been created footballdataeng with two folders: raw_data and transformed_data. The initial data ingested through Airflow is transformed to csv format and stored in the raw_data folder. The data in the transformed_data layer is ideal for reporting and analysis. It can be consumed by Azure Synapse Analytics which in turn can be connected to PowerBI for creating visualizations.
+<p><img src="images/2.Data_in_container.jpg" alt="data_incontainer" width="800px"></p>
 
 ## <ins>2. Data Transformation</ins>
-After ingesting data into the "bronze" folder, it is transformed following the medallion data lake architecture (bronze, silver, gold). Data transitions through bronze, silver, and ultimately gold, suitable for business reporting tools like Power BI.
+Please note that I have skipped that part because my file was pretty cleaned. I copied the file to transformed_data through Data Lake.
+<p><img src="images/4.copied_data_fromraw_to_transformed.jpg" alt="4.copied_data_fromraw_to_transformed" width="800px"></p> 
+<p><img src="images/6.publish_all.jpg" alt="4.copied_data_fromraw_to_transformed" width="800px"></p>
 
-It was convenient to access the storage using the credential passthrough feature as the email ID being used for this project was already added to the IAM policy of the data lake. The Data Factory could be connected by using an access token generated from Databricks and saving it as a secret in the Key vault.
-
-Azure Databricks, using PySpark, is used for these transformations. Data initially stored in parquet format in the "bronze" folder is converted to the delta format as it progresses to "silver" and "gold." This transformation is carried out through Databricks notebooks:
+Anyway you can find below steps - How to transform raw_data through Azure Dataricks: 
+Azure Databricks, using PySpark, can be used for these transformations. Data initially stored in csv format in the "raw_data" folder is converted to the csv format as it progresses to "transformed_data". This transformation can be carried out through Databricks notebooks:
 
 1. Mount the storage.
-2. Transform data from "bronze" to "silver" layer.
-3. Further transform data from "silver" to "gold" layer.
-<p><img src="images/end to end pipeline_successed.jpg" alt="end to end pipeline_successed" width="800px"></p> 
+2. Execute transformation by using the Azure Databricks compute engine.
+3. Transform data from "raw_data" to "transformed_data" layer.
 
-## <ins>3. Data Loading</ins>
-Data from the "gold" folder is loaded into the Business Intelligence reporting application, Power BI. Azure Synapse is used for this purpose. The steps involve:
+## <ins>3. Data Loading and Querying Data with Azure Synapse</ins>
+Data from the "transformed_data" folder is loaded into the Business Intelligence reporting application, Power BI. Azure Synapse is used for this purpose. The steps involve:
 
-1. Creating a link from Azure Storage (Gold Folder) to Azure Synapse.
+1. Creating a link from Azure Storage (Transformed_data Folder) to Azure Synapse. Created StadiumDB with stadiums table.
 2. Writing stored procedures to extract table information as a SQL view.
-3. Storing views within a server-less SQL Database in Synapse.
-<p><img src="images/Connected to ServerlessSQLDB.jpg" alt="Connected to ServerlessSQLDB" width="800px"></p>  
-<p><img src="images/stored procedure.jpg" alt="stored procedure" width="800px"></p>
-<p><img src="images/linked_data lake storage.jpg" alt="linked_data lake storage" width="800px"></p> 
-<p><img src="images/all_views_success.jpg" alt="all_views_success" width="800px"></p> 
+3. synapse.sql file contains a collection of SQL queries used for data analysis
+
+<p><img src="images/8.creating_db_and_table.jpg" alt="StadiumDB" width="800px"></p>  
+<p><img src="images/11.table_query_success.jpg" alt="synapse queries" width="800px"></p>
+<p><img src="images/13.query_checks_13.jpg" alt="quries" width="800px"></p> 
 
 ## <ins>4. Data Reporting</ins>
-Power BI connects directly to the cloud pipeline using DirectQuery to dynamically update the database. A Power BI report is developed to visualize AdventureWorks dataset data, including sales, product information, and customer gender.
+Power BI connects directly to the cloud pipeline using DirectQuery to dynamically update the database. A Power BI report is developed to visualize football dataset data.
 
 Database connected and data loaded
-<p><img src="images/Load_power BI.jpg" alt="Load_power BI" width="800px"></p>
-Manage relationship 
-<p><img src="images/create new relationship.jpg" alt="create new relationship" width="800px"></p>
-<p><img src="images/dashboard.jpg" alt="dashboard" width="800px"></p>
+<p><img src="images/14.connected_to_PowerBI.jpg" alt="Load_power BI" width="800px"></p>
+The dashboard within the PowerBI workbook provides an interactive view of the football data. 
+Note: Due to an issue with PowerBI, MAP info is not displayed!!
+<p><img src="images/17.PowerBI_last.jpg" alt="dashboard" width="800px"></p>
+
